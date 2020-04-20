@@ -1,5 +1,7 @@
 # OS_Package
 
+Read OSReport.pdf for details.
+
 How to compile:
 gcc -g -c bathroom.c -Wall -pthread
 gcc -g -c Sim_queue.c -Wall -pthread
