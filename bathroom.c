@@ -33,7 +33,7 @@ void Initialize(Thebathroom *CommonBathroom) {
     pthread_mutex_init(&(CommonBathroom->mutex), NULL);
     pthread_cond_init(&(CommonBathroom->condition), NULL);
     CommonBathroom->state = 0; //state unoccupied = 0; occupied = 1
-    CommonBathroom->current_INTHEBATHROOM = 0; //Ya know, "IN THE BATHROOM" ~ NCS/Weird AL. https://www.youtube.com/watch?v=JsCLnMrWbsw
+    CommonBathroom->current_inbathroom = 0; //Ya know, "IN THE BATHROOM" ~ NCS/Weird AL. https://www.youtube.com/watch?v=JsCLnMrWbsw
     CommonBathroom->current_waiting = 0; //current num people in q
     CommonBathroom->Overall_total_inQ = 0; //number of people who were in the q through the sim
     CommonBathroom->Overall_total_q_time = 0; //overall total q time (sum of all people's q time)
@@ -61,11 +61,11 @@ void Enter(Thebathroom *CommonBathroom, gender g) {
         } else {
             CommonBathroom->state = 2;
         }
-        CommonBathroom->current_INTHEBATHROOM++; //increment num users in bathroom
+        CommonBathroom->current_inbathroom++; //increment num users in bathroom
     } else if ((CommonBathroom->state == 1 && g == male) ||
                (CommonBathroom->state == 2 && g == female)) { //bathroom gender is same as user gender
 
-        CommonBathroom->current_INTHEBATHROOM++; //increment num users in bathroom
+        CommonBathroom->current_inbathroom++; //increment num users in bathroom
     } else {
         CommonBathroom->current_waiting++; //increment wait queue;
 
@@ -81,7 +81,7 @@ void Enter(Thebathroom *CommonBathroom, gender g) {
             CommonBathroom->state = 1;
         }
 
-        CommonBathroom->current_INTHEBATHROOM++; //increment num users in bathroom
+        CommonBathroom->current_inbathroom++; //increment num users in bathroom
 
     }
 //printf("oh k!\n\n");
@@ -95,9 +95,9 @@ void Leave(Thebathroom *CommonBathroom) {
     pthread_mutex_lock(&(CommonBathroom->mutex));
 
     //remove person from bathroom
-    CommonBathroom->current_INTHEBATHROOM--;
+    CommonBathroom->current_inbathroom--;
 
-    if (CommonBathroom->current_INTHEBATHROOM <= 0) {
+    if (CommonBathroom->current_inbathroom <= 0) {
 
         CommonBathroom->state = 0; //unoccupied
 
@@ -129,10 +129,10 @@ void Finalize(Thebathroom *CommonBathroom) {
     pthread_cond_destroy(&(CommonBathroom->condition));
 
     //print stats
-    printf("Bathroom Statistics:\n");
+    printf("Bathroom Stats:\n");
     printf("Total Time of Simulation: %d ms\n", CommonBathroom->timediff);
     printf("Total uses: %d\n", CommonBathroom->total_uses);
-    printf("Total times people were in the Queue:: %d ms\n", CommonBathroom->Overall_total_inQ);
+    printf("Total times people were in Queue:: %d ms\n", CommonBathroom->Overall_total_inQ);
     printf("Total Time spent in Queue:: %d ms\n", CommonBathroom->Overall_total_q_time);
     printf("Minimum Time spent in Queue: %d ms\n", CommonBathroom->Overall_min_q_time);
     printf("Maximum Time spent in Queue: %d ms\n", CommonBathroom->Overall_max_q_time);
