@@ -20,16 +20,16 @@ typedef struct {
     int state; //state unoccupied = 0; 1=male 2=female
     int current_inbathroom;
     int current_waiting; //current num people in q
-    int Overall_total_inQ; //number of people who were in the q through the sim
-    int Overall_total_q_time; //overall total q time (sum of all people's q time)
-    int Overall_min_q_time; //overall min q time of all people
-    int Overall_max_q_time; //overall max q time of all people
-    float Overall_avg_q_time; //Overall_total_q_time/Overall_total_inQ = overall avg q time
+    int Sim_total_inQ; //number of people who were in the q through the sim
+    int Sim_total_q_time; //overall total q time (sum of all people's q time)
+    int Sim_min_q_time; //overall min q time of all people
+    int Sim_max_q_time; //overall max q time of all people
+    float Sim_avg_q_time; //Overall_total_q_time/Sim_total_inQ = overall avg q time
     int total_uses; //total uses the bathroom has gone through
     struct timeval start; //the time the start of init
     struct timeval end; //the time the finalize
     int timediff; //dif between start and end
-    float Overall_avg_users; //total_uses/(end-start) = avg users through simulation
+    float Sim_avg_users; //total_uses/(end-start) = avg users through simulation
 } Thebathroom;
 //end bathroom struct
 
