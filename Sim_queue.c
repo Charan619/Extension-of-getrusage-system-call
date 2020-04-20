@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 //return 0;
     } else { //BAD # of args
         printf("\n Please use the program like so:");
-        printf("\n\t./bathroomSim nUsers meanLoopCount meanArrivaltime meanStaytime\n\n");
+        printf("\n\t./Sim_queue nUsers meanLoopCount meanArrivaltime meanStaytime\n\n");
         exit(1);
     }
 
