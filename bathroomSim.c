@@ -14,15 +14,15 @@ typedef struct {
     gender mygender; //person gender
 
 
-int loopcount; //number of bathroom trips a person takes
-long inQueue; //times person was in the queue
-long minQueuetime; //min wait time //long because int overflow is possible
-long maxQueuetime; //max wait time
-long totalQueuetime; //total wait time
-long avgQueuetime; //totalQueuetime/inQueue = avg wait time
-int staytime; //time it takes to poo
+int loopct; //number of bathroom trips a person takes
+long times_inQueue; //times person was in the queue
+long minQtime; //min wait time //long because int overflow is possible
+long maxQtime; //max wait time
+long totalWaittime; //total wait time
+long avgQtime; //totalQueuetime/inQueue = avg wait time
+int staytime; //time in loo
 int arrivaltime; //time the person gets arrives in the queue
-
+*/
 } person_info;
 
 
@@ -30,11 +30,11 @@ Thebathroom CommonBathroom;
 pthread_mutex_t printing; //mutex for several lines of printing
 
 int meanLoopCount;
-int meanArrival;
-int meanStay;
+int meanArrivaltime;
+int meanStaytime;
 
 //generate random number from a given mean.
-int genNormDistro(int mean) {
+int NormDist(int mean) {
     float a = drand48();
     float b = drand48();
     float z = sqrt(-2 * log(a)) * cos(2 * M_PI * b); //box-muller equation
@@ -48,29 +48,29 @@ int genNormDistro(int mean) {
     return (int) floor(num); //turn float to int and round down
 }
 
-void *Individual(void *info) {
+void *Person(void *info) {
     person_info *Stranger = (person_info *) info;
-    unsigned long minQueuetime = 999999999; //minimum time spent in queue
-    long avgQueuetime = 0; //average time spent in queue
-    long maxQueuetime = 0; //maximum time spent in queue
-    long totalQueuetime = 0; //total time spent in queue
-    int inQueue = 0; //total number of times waited in queue
+    unsigned long minQtime = 999999999; //minimum time spent in queue
+    long avgQtime = 0; //average time spent in queue
+    long maxQtime = 0; //maximum time spent in queue
+    long totalWaittime = 0; //total time spent in queue
+    int times_inQueue = 0; //total number of times waited in queue
 
     struct timeval tryEntercall; //finds the time person trys to enter
     struct timeval Entercall; //finds the time person actually entered
 
 
-    int loopcount = genNormDistro(meanLoopCount);
+    int loopct = NormDist(meanLoopCount);
     int vcsw=0;
     int ivcsw=0;
 
-    for (int i = 0; i < loopcount; i++) {
+    for (int i = 0; i < loopct; i++) {
         //printf("Stranger %d is on trip number %d\n",Stranger->pid,i++);
 	struct rusage buf;
 	getrusage(RUSAGE_SELF, &buf);
 
-        int arrivaltime = genNormDistro(meanArrival);
-        int staytime = genNormDistro(meanStay);
+        int arrivaltime = NormDist(meanArrivaltime);
+        int staytime = NormDist(meanStaytime);
 
         /* wait for a random length of time
            based on arrival_time */
@@ -93,30 +93,30 @@ void *Individual(void *info) {
 	vcsw+=buf.ru_nvcsw;
 	ivcsw+=buf.ru_nivcsw;
         if (diff) {
-            if (diff > maxQueuetime) {
-                maxQueuetime = diff; //update person max
+            if (diff > maxQtime) {
+                maxQtime = diff; //update person max
                 updateOverallmax(&CommonBathroom, diff); //update bathroom max
             }
 
-            if (diff < minQueuetime) {
-                minQueuetime = diff; //update person min
+            if (diff < minQtime) {
+                minQtime = diff; //update person min
                 updateOverallmin(&CommonBathroom, diff); //update bathroom min
             }
 
-            inQueue++;
-            totalQueuetime += diff; //update person sum
+            times_inQueue++;
+            totalWaittime += diff; //update person sum
             sumQtime(&CommonBathroom, diff); //update bathroom sum
         }
     }
 
     // get average from the total / the loop count if they were in a q
-    if (inQueue) {
-        avgQueuetime = totalQueuetime / inQueue;
+    if (times_inQueue) {
+        avgQtime = totalWaittime / times_inQueue;
     }
 
     //change value for printing
-    if (minQueuetime == 999999999) {
-        minQueuetime = 0;
+    if (minQtime == 999999999) {
+        minQtime = 0;
     }
 
     pthread_mutex_lock(&printing); //lock so only this thread prints
@@ -129,18 +129,18 @@ void *Individual(void *info) {
         printf("Gender: Female\n");
     }
 
-    printf("no of voluntary context switches: %d\n", vcsw);
-    printf("no of involuntary context switches: %d\n", ivcsw);
-    printf("Bathroom Trips: %d\n", loopcount);
-    printf("Min queue time: %ld ms\n", minQueuetime);
-    printf("Max queue time: %ld ms\n", maxQueuetime);
-    printf("Avg queue time: %ld ms\n", avgQueuetime);
-    printf("Times in queue: %d\n", inQueue);
-    printf("Total queue time: %ld ms\n\n\n", totalQueuetime);
+    printf("No. of voluntary context switches: %d\n", vcsw);
+    printf("No. of involuntary context switches: %d\n", ivcsw);
+    printf("Bathroom Trips: %d\n", loopct);
+    printf("Min queue time: %ld ms\n", minQtime);
+    printf("Max queue time: %ld ms\n", maxQtime);
+    printf("Avg queue time: %ld ms\n", avgQtime);
+    printf("Times in queue: %d\n", times_inQueue);
+    printf("Total time in Queue: %ld ms\n\n\n", totalWaittime);
 
 
     //Upload stats to bathroom
-    //CommonBathroom->total_uses += loopcount; need to use a getter
+    //CommonBathroom->total_uses += loopct; need to use a getter
 
 
 
@@ -170,15 +170,15 @@ int main(int argc, char *argv[]) {
 
         int nUsers = atoi(argv[1]); //# of users
         meanLoopCount = atoi(argv[2]); //mean loop count
-        meanArrival = atoi(argv[3]); //mean arrival time
-        meanStay = atoi(argv[4]); //mean stay
+        meanArrivaltime = atoi(argv[3]); //mean arrival time
+        meanStaytime = atoi(argv[4]); //mean stay
 
 
         printf("\nValid Input recognized!\n");
         printf("Number of Users:%d\n", nUsers);
         printf("Mean Loop Count:%d\n", meanLoopCount);
-        printf("Mean Arrival:%d\n", meanArrival);
-        printf("Mean Stay:%d\n\n", meanStay);
+        printf("Mean Arrival:%d\n", meanArrivaltime);
+        printf("Mean Stay:%d\n\n", meanStaytime);
 //VALID INPUT!
 
 
@@ -200,8 +200,8 @@ int main(int argc, char *argv[]) {
             }
 
 
-            pthread_create(&People[i], NULL, Individual, (void *) person);
-            //individual cant pass avgs so they must be globals
+            pthread_create(&People[i], NULL, Person, (void *) person);
+            //Person cant pass avgs so they must be globals
         }
 //printf("HELLO!\n\n");
         for (int i = 0; i < nUsers; ++i) {
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 //return 0;
     } else { //BAD # of args
         printf("\n Please use the program like so:");
-        printf("\n\t./bathroomSim nUsers meanLoopCount meanArrival meanStay\n\n");
+        printf("\n\t./bathroomSim nUsers meanLoopCount meanArrivaltime meanStaytime\n\n");
         exit(1);
     }
 

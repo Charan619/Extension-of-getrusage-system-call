@@ -18,7 +18,7 @@ typedef struct {
     pthread_cond_t condition; //the condition
 
     int state; //state unoccupied = 0; 1=male 2=female
-    int current_INTHEBATHROOM;
+    int current_inbathroom;
     int current_waiting; //current num people in q
     int Overall_total_inQ; //number of people who were in the q through the sim
     int Overall_total_q_time; //overall total q time (sum of all people's q time)
