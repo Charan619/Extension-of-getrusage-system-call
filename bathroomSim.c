@@ -22,7 +22,7 @@ long totalQueuetime; //total wait time
 long avgQueuetime; //totalQueuetime/inQueue = avg wait time
 int staytime; //time it takes to poo
 int arrivaltime; //time the person gets arrives in the queue
-*/
+
 } person_info;
 
 
