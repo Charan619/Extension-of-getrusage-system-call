@@ -22,7 +22,7 @@ long totalWaittime; //total wait time
 long avgQtime; //totalQueuetime/inQueue = avg wait time
 int staytime; //time in loo
 int arrivaltime; //time the person gets arrives in the queue
-*/
+
 } person_info;
 
 
