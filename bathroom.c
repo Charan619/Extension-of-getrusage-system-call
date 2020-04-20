@@ -33,7 +33,7 @@ void Initialize(Thebathroom *CommonBathroom) {
     pthread_mutex_init(&(CommonBathroom->mutex), NULL);
     pthread_cond_init(&(CommonBathroom->condition), NULL);
     CommonBathroom->state = 0; //state unoccupied = 0; occupied = 1
-    CommonBathroom->current_inbathroom = 0; //Ya know, "IN THE BATHROOM" ~ NCS/Weird AL. https://www.youtube.com/watch?v=JsCLnMrWbsw
+    CommonBathroom->current_inbathroom = 0; 
     CommonBathroom->current_waiting = 0; //current num people in q
     CommonBathroom->Overall_total_inQ = 0; //number of people who were in the q through the sim
     CommonBathroom->Overall_total_q_time = 0; //overall total q time (sum of all people's q time)
